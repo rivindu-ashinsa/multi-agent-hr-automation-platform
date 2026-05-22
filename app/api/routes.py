@@ -7,6 +7,12 @@ from app.agents.orchestrator import (
 router = APIRouter()
 
 
+
+
+@router.get("/")
+def root():
+    return {"message": "Application is running!"}
+
 @router.post("/request")
 def handle_request(data: dict):
 

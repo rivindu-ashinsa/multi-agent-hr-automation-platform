@@ -1,4 +1,4 @@
-import clarification_agent,scheduling_agent, leave_agent, compliance_agent
+from app.agents import clarification_agent, compliance_agent, leave_agent, scheduling_agent
 
 def get_agent(intent: str):
 
