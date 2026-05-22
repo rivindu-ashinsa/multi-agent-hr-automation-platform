@@ -49,4 +49,4 @@ def generate_response(prompt: str):
         .content
     )
 
-print(generate_response("What is the capital of France?"))
+# print(generate_response("What is the capital of France?"))
