@@ -1,59 +1,159 @@
-from app.agents.classifier import classify_intent
-from app.agents.router import get_agent
-
-from app.memory.stm import store_stm
-from app.memory.ltm import store_ltm
-from app.memory.scorer import calculate_importance
-
-from app.audit.logger import log_event
+import pathlib
+import sys
 
 
-def run_orchestrator(
-    user_id,
-    message
-):
+if __package__ in (None, ""):
+    sys.path.append(str(pathlib.Path(__file__).resolve().parents[2]))
 
-    # classify
-    intent, confidence = classify_intent(message)
 
-    # select agent
-    agent = get_agent(intent)
+from langgraph.graph import (
+    StateGraph,
+    END
+)
 
-    # run agent
-    response = agent(message)
+from app.agents.state import AgentState
 
-    # store STM
-    store_stm(
-        user_id,
-        message,
-        response
-    )
+from app.agents.classifier import (
+    classify_intent
+)
 
-    # score importance
-    importance = calculate_importance(message)
+from app.memory.retriever import (
+    retrieve_memory
+)
 
-    # promote to LTM
-    if importance >= 3:
+from app.agents.router import (
+    choose_agent
+)
 
-        store_ltm(
-            user_id,
-            message,
-            importance
-        )
+from app.agents.conditional_edges import (
+    route_agent
+)
 
-    # audit log
-    log_event(
-        user_id,
-        message,
-        intent,
-        confidence,
-        agent.__name__,
-        response,
-        "success"
-    )
+from app.agents import (
+    scheduling_agent,
+    leave_agent,
+    compliance_agent,
+    clarification_agent
+)
 
-    return {
-        "intent": intent,
-        "confidence": confidence,
-        "response": response
+from app.memory.store_memory import (
+    memory_node
+)
+
+from app.audit.logger import (
+    audit_node
+)
+
+
+workflow = StateGraph(AgentState)
+
+
+# nodes
+workflow.add_node(
+    "classifier",
+    classify_intent
+)
+
+workflow.add_node(
+    "memory_retrieval",
+    retrieve_memory
+)
+
+workflow.add_node(
+    "router",
+    choose_agent
+)
+
+workflow.add_node(
+    "scheduling",
+    scheduling_agent.handle
+)
+
+workflow.add_node(
+    "leave",
+    leave_agent.handle
+)
+
+workflow.add_node(
+    "compliance",
+    compliance_agent.handle
+)
+
+workflow.add_node(
+    "clarification",
+    clarification_agent.handle
+)
+
+workflow.add_node(
+    "memory_store",
+    memory_node
+)
+
+workflow.add_node(
+    "audit",
+    audit_node
+)
+
+
+# flow
+workflow.set_entry_point(
+    "classifier"
+)
+
+workflow.add_edge(
+    "classifier",
+    "memory_retrieval"
+)
+
+workflow.add_edge(
+    "memory_retrieval",
+    "router"
+)
+
+
+# dynamic routing
+workflow.add_conditional_edges(
+    "router",
+    route_agent,
+    {
+        "scheduling": "scheduling",
+        "leave": "leave",
+        "compliance": "compliance",
+        "clarification": "clarification"
     }
+)
+
+
+# after agents
+workflow.add_edge(
+    "scheduling",
+    "memory_store"
+)
+
+workflow.add_edge(
+    "leave",
+    "memory_store"
+)
+
+workflow.add_edge(
+    "compliance",
+    "memory_store"
+)
+
+workflow.add_edge(
+    "clarification",
+    "memory_store"
+)
+
+workflow.add_edge(
+    "memory_store",
+    "audit"
+)
+
+workflow.add_edge(
+    "audit",
+    END
+)
+
+
+graph = workflow.compile()

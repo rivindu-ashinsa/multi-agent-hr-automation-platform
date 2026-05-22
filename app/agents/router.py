@@ -1,14 +1,25 @@
-from app.agents import clarification_agent, compliance_agent, leave_agent, scheduling_agent
+def choose_agent(state):
 
-def get_agent(intent: str):
+    intent = state["intent"]
 
     if intent == "scheduling":
-        return scheduling_agent.handle
+        state["selected_agent"] = (
+            "scheduling"
+        )
 
-    if intent == "leave":
-        return leave_agent.handle
+    elif intent == "leave":
+        state["selected_agent"] = (
+            "leave"
+        )
 
-    if intent == "compliance":
-        return compliance_agent.handle
+    elif intent == "compliance":
+        state["selected_agent"] = (
+            "compliance"
+        )
 
-    return clarification_agent.handle
+    else:
+        state["selected_agent"] = (
+            "clarification"
+        )
+
+    return state

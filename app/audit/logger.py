@@ -1,17 +1,10 @@
 from app.core.database import get_connection
 
 
-def log_event(
-    user_id,
-    request,
-    intent,
-    confidence,
-    agent,
-    response,
-    status
-):
+def audit_node(state):
 
     conn = get_connection()
+
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -27,14 +20,18 @@ def log_event(
         )
         VALUES (?, ?, ?, ?, ?, ?, ?)
     """, (
-        user_id,
-        request,
-        intent,
-        confidence,
-        agent,
-        response,
-        status
+        state["user_id"],
+        state["user_input"],
+        state["intent"],
+        state["confidence"],
+        state["selected_agent"],
+        state["response"],
+        "success"
     ))
 
     conn.commit()
     conn.close()
+
+    state["audit_logged"] = True
+
+    return state

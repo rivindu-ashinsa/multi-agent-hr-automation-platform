@@ -1,5 +1,6 @@
-def classify_intent(message: str):
-    msg = message.lower()
+
+def classify_intent(state):
+    msg = state['user_input'].lower()
 
     keywords = {
         "scheduling": ["schedule", "meeting", "interview", "appointment", "calendar", "time", "date", "book", "arrange", "set up"],
@@ -33,10 +34,13 @@ def classify_intent(message: str):
                 scores[intent] += 2 * count
     total = sum(scores.values())
     if total == 0:
-        return "clarification", 0.0
+        state["intent"] = "clarification"
+        state["confidence"] = 0.0
+        return state
 
     normalized = {key: round(value / total, 2) for key, value in scores.items()}
     best_intent = max(normalized, key=normalized.get)
 
-    return best_intent, normalized[best_intent]
-
+    state["intent"] = best_intent
+    state["confidence"] = normalized[best_intent]
+    return state
