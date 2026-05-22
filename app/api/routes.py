@@ -86,6 +86,16 @@ def root() -> RootResponse:
                     "System health monitoring endpoint"
                 ),
                 "parameters": []
+            },
+
+            {
+                "method": "GET",
+                "path": "/docs",
+                "description": (
+                    "FastAPI Swagger UI documentation for exploring and "
+                    "submitting requests, including POST requests"
+                ),
+                "parameters": []
             }
         ]
     }

@@ -8,7 +8,7 @@ from app.api.routes import router
 from app.core.database import init_db
 
 
-app = FastAPI()
+app = FastAPI(docs_url="/docs", redoc_url=None)
 
 init_db()
 

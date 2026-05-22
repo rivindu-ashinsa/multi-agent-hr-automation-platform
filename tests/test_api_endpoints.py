@@ -138,7 +138,7 @@ class ApiEndpointTests(unittest.TestCase):
         payload = response.json()
         self.assertEqual(payload["service"], "HR Multi-Agent System")
         self.assertEqual(payload["status"], "running")
-        self.assertEqual(len(payload["endpoints"]), 4)
+        self.assertEqual(len(payload["endpoints"]), 5)
 
     def test_request_routes_to_graph(self):
         response = self.client.post(
