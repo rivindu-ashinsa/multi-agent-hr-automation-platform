@@ -1,15 +1,34 @@
+from app.services.llm_service import (
+    generate_response
+)
+
+
 def handle(state):
 
-    memories = state["ltm_memory"]
+    user_input = state["user_input"]
 
-    response = (
-        "Leave  request processed."
+    stm = state["stm_memory"]
+
+    ltm = state["ltm_memory"]
+
+    prompt = f"""
+        You are an HR leave management assistant.
+
+        Recent conversation history:
+        {stm}
+
+        Long-term user information:
+        {ltm}
+
+        Current request:
+        {user_input}
+
+        Provide a helpful leave-management response.
+        """
+
+    response = generate_response(
+        prompt
     )
-
-    if memories:
-        response += (
-            f" Context found: {memories}"
-        )
 
     state["response"] = response
 

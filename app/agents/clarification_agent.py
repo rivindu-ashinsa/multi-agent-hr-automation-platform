@@ -1,15 +1,26 @@
+from app.services.llm_service import (
+    generate_response
+)
+
+
 def handle(state):
 
-    memories = state.get("ltm_memory", [])
+    user_input = state["user_input"]
 
-    response = (
-        "Clarification requested. Please provide more details about your HR request."
+    prompt = f"""
+        You are a clarification assistant.
+
+        The user's intent is unclear.
+
+        User request:
+        {user_input}
+
+        Politely ask for clarification.
+        """
+
+    response = generate_response(
+        prompt
     )
-
-    if memories:
-        response += (
-            f" Context found: {memories}"
-        )
 
     state["response"] = response
 

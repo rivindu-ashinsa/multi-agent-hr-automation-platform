@@ -1,6 +1,7 @@
-fastapi 
-uvicorn 
-langgraph 
-python-dotenv 
+fastapi
+uvicorn
+langgraph
+python-dotenv
 pydantic
 groq
+openai
