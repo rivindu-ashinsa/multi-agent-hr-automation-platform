@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, Dict, List
 
 from fastapi import APIRouter
 from pydantic import BaseModel
@@ -34,7 +34,8 @@ class RootResponse(BaseModel):
 
 
 @router.get("/", response_model=RootResponse)
-def root():
+def root() -> RootResponse:
+    """Return the service metadata and available API endpoints."""
 
     return {
         "service": "HR Multi-Agent System",
@@ -61,7 +62,7 @@ def root():
                 "path": "/audit",
                 "description": (
                     "Retrieve all audit logs ordered "
-                    "by timestamp descending"
+                    "by created_at descending"
                 ),
                 "parameters": []
             },
@@ -91,20 +92,21 @@ def root():
 
 
 @router.post("/request")
-def handle_request(data: UserRequest):
-    # 2. Map request data to match your AgentState keys
+def handle_request(data: UserRequest) -> Dict[str, Any]:
+    """Submit a user request to the LangGraph orchestration pipeline."""
+
     initial_state = {
         "user_id": data.user_id,
         "user_input": data.message 
     }
-    
-    # 3. Pass the dictionary directly to the graph
+
     result = graph.invoke(initial_state)
     return result
 
 
 @router.get("/audit")
-def get_audit_logs():
+def get_audit_logs() -> List[Dict[str, Any]]:
+    """Return audit log entries ordered from newest to oldest."""
 
     conn = get_connection()
 
@@ -113,7 +115,7 @@ def get_audit_logs():
     cursor.execute("""
         SELECT *
         FROM audit_logs
-        ORDER BY id DESC
+        ORDER BY created_at DESC, id DESC
     """)
 
     rows = cursor.fetchall()
@@ -127,7 +129,8 @@ def get_audit_logs():
 
 
 @router.get("/memory/{user_id}")
-def get_memory(user_id: str):
+def get_memory(user_id: str) -> Dict[str, Any]:
+    """Return the stored short-term and long-term memory for a user."""
 
     conn = get_connection()
 
@@ -170,7 +173,8 @@ def get_memory(user_id: str):
 
 
 @router.get("/health")
-def health_check():
+def health_check() -> Dict[str, str]:
+    """Return a lightweight health status for the service."""
 
     return {
         "status": "healthy",

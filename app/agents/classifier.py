@@ -1,4 +1,7 @@
 
+LOW_CONFIDENCE_THRESHOLD = 0.35
+
+
 def classify_intent(state):
     msg = state['user_input'].lower()
 
@@ -40,6 +43,11 @@ def classify_intent(state):
 
     normalized = {key: round(value / total, 2) for key, value in scores.items()}
     best_intent = max(normalized, key=normalized.get)
+
+    if normalized[best_intent] < LOW_CONFIDENCE_THRESHOLD:
+        state["intent"] = "clarification"
+        state["confidence"] = normalized[best_intent]
+        return state
 
     state["intent"] = best_intent
     state["confidence"] = normalized[best_intent]

@@ -45,10 +45,44 @@ def init_db():
             confidence REAL,
             agent TEXT,
             response TEXT,
-            status TEXT
+            status TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
         """
     )
+
+    cursor.execute(
+        """
+        CREATE TRIGGER IF NOT EXISTS audit_logs_prevent_update
+        BEFORE UPDATE ON audit_logs
+        BEGIN
+            SELECT RAISE(ABORT, 'audit_logs is append-only');
+        END;
+        """
+    )
+
+    cursor.execute(
+        """
+        CREATE TRIGGER IF NOT EXISTS audit_logs_prevent_delete
+        BEFORE DELETE ON audit_logs
+        BEGIN
+            SELECT RAISE(ABORT, 'audit_logs is append-only');
+        END;
+        """
+    )
+
+    cursor.execute("PRAGMA table_info(audit_logs)")
+    audit_columns = {row[1] for row in cursor.fetchall()}
+
+    if "created_at" not in audit_columns:
+        cursor.execute("ALTER TABLE audit_logs ADD COLUMN created_at TEXT")
+        cursor.execute(
+            """
+            UPDATE audit_logs
+            SET created_at = CURRENT_TIMESTAMP
+            WHERE created_at IS NULL
+            """
+        )
 
     conn.commit()
     conn.close()

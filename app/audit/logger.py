@@ -16,9 +16,10 @@ def audit_node(state):
             confidence,
             agent,
             response,
-            status
+            status,
+            created_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
     """, (
         state["user_id"],
         state["user_input"],

@@ -1,0 +1,64 @@
+{
+  "request_result": {
+    "user_id": "u-100",
+    "intent": "scheduling",
+    "confidence": 0.88,
+    "selected_agent": "scheduling",
+    "response": "Mock scheduling response",
+    "stm_memory": ["Earlier message"],
+    "ltm_memory": ["Prefers morning meetings"],
+    "audit_logged": true
+  },
+  "audit_logs": [
+    {
+      "id": 1,
+      "user_id": "u-100",
+      "request": "Older request",
+      "intent": "leave",
+      "confidence": 0.55,
+      "agent": "leave",
+      "response": "Older response",
+      "status": "success",
+      "created_at": "2026-05-21 10:00:00"
+    },
+    {
+      "id": 2,
+      "user_id": "u-100",
+      "request": "Newer request",
+      "intent": "scheduling",
+      "confidence": 0.91,
+      "agent": "scheduling",
+      "response": "Newer response",
+      "status": "success",
+      "created_at": "2026-05-22 10:00:00"
+    }
+  ],
+  "short_term_memory": [
+    {
+      "id": 1,
+      "user_id": "u-100",
+      "message": "Older memory",
+      "response": "Older memory response"
+    },
+    {
+      "id": 2,
+      "user_id": "u-100",
+      "message": "Newer memory",
+      "response": "Newer memory response"
+    }
+  ],
+  "long_term_memory": [
+    {
+      "id": 1,
+      "user_id": "u-100",
+      "memory": "Low priority memory",
+      "importance_score": 2
+    },
+    {
+      "id": 2,
+      "user_id": "u-100",
+      "memory": "High priority memory",
+      "importance_score": 5
+    }
+  ]
+}
