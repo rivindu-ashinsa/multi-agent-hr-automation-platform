@@ -1,8 +1,12 @@
 from fastapi import FastAPI
 
+from app.api.routes import router
+
+from app.core.database import init_db
+
+
 app = FastAPI()
 
+init_db()
 
-@app.get("/")
-def root():
-    return {"message": "Application is running!"}
+app.include_router(router)
